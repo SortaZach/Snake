@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/Snake.dir/link.d CMakeFiles/Snake.dir/SDL3_snake.c.o -o Snake  -Wl,-rpath,/home/zach/Projects/Snake/build libSDL3.so.0.5.0
