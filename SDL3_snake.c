@@ -21,6 +21,29 @@ internal int InitEngine(){
 
 }
 
+void RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
+  SDL_HapticID *haptics = SDL_GetHaptics(NULL);
+  if (haptics) {
+    haptic = SDL_OpenHaptic(haptics[0]);
+    SDL_free(haptics);
+  }
+
+  if (haptic == NULL) {
+    SDL_Log("Run Haptics: haptic was null");
+    return;
+  }
+
+  if (!SDL_InitHapticRumble(haptic)) {
+    SDL_Log("InitHapticRumble: return was unexpected!");
+    return;
+  }
+
+  if (!SDL_PlayHapticRumble(haptic, strength, time_milli)) {
+    SDL_Log("PlayHapticRumble: return was unexpected!");
+    return;
+  }
+}
+
 int main(int argc, char *argv[]){
   SDL_Window *window;
   SDL_Renderer *renderer;
@@ -46,6 +69,11 @@ int main(int argc, char *argv[]){
   haptic = NULL;
   
   running = 1;
+
+
+  //Play rumble at 50% for 2 seconds
+  RunHaptics(haptic, 0.5, 2000);
+
   while (running) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
@@ -68,20 +96,41 @@ int main(int argc, char *argv[]){
 
         case SDL_EVENT_GAMEPAD_ADDED: 
         {
-          //TODO(zach): Set new gamepad for game.
+          if (gamepad == NULL) {
+            gamepad = SDL_OpenGamepad(event.gdevice.which);
+
+          //TODO(zach): Set Better Error Handling.
+            if (gamepad == NULL) {
+              SDL_Log("Error adding gamepad");
+            }
+          }
         } break;
 
         case SDL_EVENT_GAMEPAD_REMOVED:
         {
-          //TODO(zach): Close gamepad from game;
+          if (gamepad && SDL_GetGamepadID(gamepad) == event.gdevice.which) {
+            SDL_CloseGamepad(gamepad);
+            gamepad = NULL;
+          }
+          //TODO(zach): Set Better Error Handling.
+          if (gamepad == NULL) {
+              SDL_Log("Error removing gamepad");
+            }
         }
       }
     }
 
-      SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
-      SDL_RenderTexture(renderer, GlobalBackBuffer.texture, NULL, NULL);
-      SDL_RenderPresent(renderer);
+    if (gamepad) {
+    }
+
+    SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
+    SDL_RenderTexture(renderer, GlobalBackBuffer.texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
   }
+
+
+  if (gamepad) { SDL_CloseGamepad(gamepad); }
+  if (haptic) { SDL_CloseHaptic(haptic); }
 
   SDL_DestroyTexture(GlobalBackBuffer.texture);
   SDL_free(GlobalBackBuffer.memory);
