@@ -10,7 +10,6 @@ typedef uint32_t bool32;
 typedef float real32;
 typedef double real64;
 
-#define GameUpdateHz 60
 
 // NOTE(Zach):Four things the game needs to provide to the platform layer: Timing, controller/keyboard input, bitmap buffer to use, soundbuffer to use. 
 // NOTE (Zach): Will probably  need  to  also add text buffer, and possibly other things as we go on. 
