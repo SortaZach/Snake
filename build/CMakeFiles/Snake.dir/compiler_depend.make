@@ -3,7 +3,9 @@
 
 CMakeFiles/Snake.dir/SDL3_snake.c.o: /home/zach/Projects/Snake/SDL3_snake.c \
   /home/zach/Projects/Snake/SDL3_snake.h \
+  /home/zach/Projects/Snake/platform_snake.h \
   /home/zach/Projects/Snake/snake.c \
+  /home/zach/Projects/Snake/snake.h \
   /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL.h \
   /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_assert.h \
   /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_asyncio.h \
@@ -270,15 +272,15 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /usr/lib32/libm.so.6:
 
+/usr/lib/libm.so.6:
+
+/usr/lib/libc_nonshared.a:
+
 /usr/include/wchar.h:
 
 /usr/include/sys/types.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_video.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_audio.h:
-
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/tsxldtrkintrin.h:
 
 /usr/include/inttypes.h:
 
@@ -376,23 +378,7 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_timer.h:
 
-/usr/lib/libc_nonshared.a:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_iostream.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_gpu.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_oldnames.h:
-
-/usr/include/stdlib.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_init.h:
-
-/usr/include/bits/types/wint_t.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_begin_code.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_blendmode.h:
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_time.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL.h:
 
@@ -420,21 +406,63 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /usr/include/bits/types/struct_timespec.h:
 
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_gpu.h:
+
+/usr/include/bits/types/wint_t.h:
+
+/home/zach/Projects/Snake/platform_snake.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_blendmode.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_begin_code.h:
+
+/usr/include/stdlib.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_init.h:
+
+/usr/include/bits/types/struct_timeval.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_clipboard.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_guid.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/vpclmulqdqintrin.h:
+
+/usr/include/bits/types/clockid_t.h:
+
+/usr/include/bits/stdint-intn.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/avx512cdintrin.h:
+
+/usr/include/bits/floatn-common.h:
+
+/usr/lib/libgcc_s.so:
+
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_events.h:
 
 /usr/include/bits/types/__mbstate_t.h:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/lzcntintrin.h:
 
-/usr/include/string.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/tsxldtrkintrin.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/avx512bf16vlintrin.h:
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_audio.h:
+
+/home/zach/Projects/Snake/snake.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/serializeintrin.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_gamepad.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_loadso.h:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdarg.h:
+
+/usr/include/string.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/avx512bf16vlintrin.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_haptic.h:
 
@@ -464,25 +492,11 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_bits.h:
 
-/usr/include/bits/types/clockid_t.h:
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_pixels.h:
 
-/usr/include/bits/stdint-intn.h:
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_iostream.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/avx512cdintrin.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_guid.h:
-
-/usr/include/bits/wordsize.h:
-
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/vpclmulqdqintrin.h:
-
-/usr/include/bits/floatn-common.h:
-
-/usr/lib/libgcc_s.so:
-
-/usr/include/bits/types/struct_timeval.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_clipboard.h:
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_oldnames.h:
 
 /home/zach/Projects/Snake/snake.c:
 
@@ -536,8 +550,6 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_mutex.h:
 
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_pixels.h:
-
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_platform_defines.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_platform.h:
@@ -561,8 +573,6 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_render.h:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_system.h:
-
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_time.h:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/avx10_2minmaxintrin.h:
 
@@ -720,8 +730,6 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/rtmintrin.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/serializeintrin.h:
-
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/sgxintrin.h:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/xopintrin.h:
@@ -760,9 +768,9 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_thread.h:
 
-/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_surface.h:
-
 /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_joystick.h:
+
+/home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_surface.h:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/xsaveintrin.h:
 
@@ -781,5 +789,3 @@ CMakeFiles/Snake.dir/SDL3_snake.c.o:
 /usr/lib/ld-linux-x86-64.so.2:
 
 /usr/lib/libc.so.6:
-
-/usr/lib/libm.so.6:

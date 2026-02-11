@@ -1,17 +1,14 @@
 // SDL3 Platform specific code.
+
+#include "snake.h"
 #include "SDL3_snake.h"
-
-#define internal static
-#define local_persist static
-#define global_variable static
-
-#define Pi32 3.14157265359f
 #include "snake.c"
 
 global_variable int8_t running = 0;
 global_variable sdl3_offscreen_buffer GlobalBackBuffer;
+real32 TargetSecondsPerFrame = 1.0f / (real32)GameUpdateHz;
 
-internal int InitEngine(){
+g_internal int InitEngine(){
   if  (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_HAPTIC)) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initalize SDL: %s", SDL_GetError());
     return 3;
@@ -20,13 +17,12 @@ internal int InitEngine(){
   return 0;
 }
 
-
-
 void 
-RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
+RunHaptics(SDL_Haptic **haptic, float strength, int time_milli) {
   SDL_HapticID *haptics = SDL_GetHaptics(NULL);
+
   if (haptics) {
-    haptic = SDL_OpenHaptic(haptics[0]);
+    *haptic = SDL_OpenHaptic(haptics[0]);
     SDL_free(haptics);
   }
 
@@ -35,15 +31,35 @@ RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
     return;
   }
 
-  if (!SDL_InitHapticRumble(haptic)) {
-    SDL_Log("InitHapticRumble: return was unexpected!");
-    return;
-  }
+  if (*haptic == NULL) return;
 
-  if (!SDL_PlayHapticRumble(haptic, strength, time_milli)) {
-    SDL_Log("PlayHapticRumble: return was unexpected!");
-    return;
+  SDL_InitHapticRumble(*haptic);
+  SDL_PlayHapticRumble(*haptic, strength, time_milli);
+
+}
+
+g_internal int
+SDLGetWindowRefreshRate(SDL_Window *window) {
+  int displayIndex = SDL_GetDisplayForWindow(window);
+  int defaultRefreshRate = 60;
+
+  // NOTE(Zach): SDL_GetDesktopDisplayMode is used when not wanting to change 
+  // the native display mode and not the current display mode. (I think)
+  const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(displayIndex);
+
+  if (mode->refresh_rate == 0) {
+    return defaultRefreshRate;
   }
+  SDL_Log("refresh rate %0.2f", mode->refresh_rate);
+  return mode->refresh_rate;
+}
+
+
+global_variable uint64_t PerfFreq = 0;
+
+g_internal real32
+SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
+  return ((real32) (CurrentCounter - OldCounter) / (real32)PerfFreq);
 }
 
 int main(int argc, char *argv[]){
@@ -66,17 +82,18 @@ int main(int argc, char *argv[]){
   //NOTE(Zach): Many examples use SDL_CreateWindowAndRenderer() but for our purposes we're just going to create them seperate. 
   window = SDL_CreateWindow("Snake", 1024, 768, SDL_WINDOW_RESIZABLE);
   renderer = SDL_CreateRenderer(window, NULL);
-
   gamepad = NULL; 
   haptic = NULL;
-  
+  PerfFreq = SDL_GetPerformanceFrequency();
+
   running = 1;
 
-
   //Play rumble at 50% for 2 seconds
-  RunHaptics(haptic, 0.5, 2000);
+  RunHaptics(haptic, 0.25, 1000);
 
   while (running) {
+    uint64_t frameStart = SDL_GetPerformanceCounter();
+
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_EVENT_QUIT:
@@ -129,6 +146,21 @@ int main(int argc, char *argv[]){
     SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
     SDL_RenderTexture(renderer, GlobalBackBuffer.texture, NULL, NULL);
     SDL_RenderPresent(renderer);
+
+    uint64_t frameEnd = SDL_GetPerformanceCounter();
+    uint64_t elapsed = SDLGetSecondsElapsed(frameStart, frameEnd);
+
+    if (elapsed < TargetSecondsPerFrame) {
+      uint64_t remaining = TargetSecondsPerFrame - elapsed;
+
+      if (remaining > 1000000ULL) {
+        SDL_DelayPrecise(remaining - 1000000ULL);
+      }
+
+      while ((SDL_GetPerformanceCounter() - frameStart) < TargetSecondsPerFrame) {
+        // Waiting..
+      }
+    }
   }
 
 

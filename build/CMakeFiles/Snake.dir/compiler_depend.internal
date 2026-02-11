@@ -4,7 +4,9 @@
 CMakeFiles/Snake.dir/SDL3_snake.c.o
  /home/zach/Projects/Snake/SDL3_snake.c
  /home/zach/Projects/Snake/SDL3_snake.h
+ /home/zach/Projects/Snake/platform_snake.h
  /home/zach/Projects/Snake/snake.c
+ /home/zach/Projects/Snake/snake.h
  /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL.h
  /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_assert.h
  /home/zach/Projects/Snake/vendored/SDL/include/SDL3/SDL_asyncio.h
