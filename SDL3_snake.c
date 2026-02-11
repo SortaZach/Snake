@@ -2,6 +2,7 @@
 #include "snake.h"
 #include "SDL3_snake.h"
 #include "snake.c"
+
 // NOTE(Zach): Can change this to 60 is we want more animation room..  Can do a custom lock for menu screens seperate (like 15Hz) while the game could run at 60. Things to think about.
 #define GameUpdateHz 30
 
@@ -38,25 +39,24 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
   return ((real32) (CurrentCounter - OldCounter) / (real32)PerfFreq);
 }
 
+g_internal void
+SDLProccessGameControllerButton(
+      game_button_state *OldState,
+      game_button_state *NewState,
+      SDL_Gamepad *ControllerHandle,
+      SDL_GamepadButton Button
+    ) {
+      NewState->endedDown = SDL_GetGamepadButton(ControllerHandle, Button);
+      NewState->halfTransitionCount = ((NewState->endedDown == OldState->endedDown) ? 0 : 1);
+}
+
 void 
-RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
-  SDL_HapticID *haptics = SDL_GetHaptics(NULL);
-
-  if (haptics) {
-    haptic = SDL_OpenHaptic(haptics[0]);
-    SDL_free(haptics);
-  }
-
-  if (haptic == NULL) {
-    SDL_Log("Run Haptics: haptic was null");
-    return;
-  }
+SDLRunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
 
   if (haptic == NULL) return;
 
   SDL_InitHapticRumble(haptic);
   SDL_PlayHapticRumble(haptic, strength, time_milli);
-
 }
 
 int main(int argc, char *argv[]){
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
   SDL_Haptic *haptic;
   SDL_Event event;
 
-    char game_name[] = "Snake";
+  char game_name[] = "Snake";
   char game_version[] = "v1.0.0";
   char game_identifier[] = "com.dyforge.snake";
 
@@ -77,11 +77,28 @@ int main(int argc, char *argv[]){
   if (InitEngine() > 0) { return 1; }
 
   //NOTE(Zach): Many examples use SDL_CreateWindowAndRenderer() but for our purposes we're just going to create them seperate. 
+  
+  //---INITIALIZE  VALUES  ------
   window = SDL_CreateWindow("Snake", 1024, 768, SDL_WINDOW_RESIZABLE);
   renderer = SDL_CreateRenderer(window, NULL);
   gamepad = NULL; 
-  haptic = NULL;
+  game_state GameState;
 
+  //init haptic
+  haptic = NULL;
+  SDL_HapticID *haptics = SDL_GetHaptics(NULL);
+  if (haptics) {
+    haptic = SDL_OpenHaptic(haptics[0]);
+    SDL_free(haptics);
+  }
+
+
+  game_input Input[2] = {0};
+  game_input *NewInput = &Input[0];
+  game_input *OldInput = &Input[1];
+
+
+  //---INITIALIZE  PERFOMANCE WATCHING  ------
   double fps_accum_seconds = 0.0;
   double work_accum_seconds = 0.0;
   uint32_t  fps_frames = 0;
@@ -92,7 +109,7 @@ int main(int argc, char *argv[]){
   running = 1;
 
   //Play rumble at 50% for 2 seconds
-  //RunHaptics(haptic, 0.50, 2000);
+  //SDLRunHaptics(haptic, 0.50, 2000);
 
   while (running) {
     uint64_t frameStart = SDL_GetPerformanceCounter();
@@ -143,9 +160,110 @@ int main(int argc, char *argv[]){
     }
 
     if (gamepad) {
+      game_controller_input *OldController = &OldInput->Controllers[0];
+      game_controller_input *NewController = &NewInput->Controllers[0];
 
+
+      //SDL_GAMEPAD_BUTTON_SOUTH // Bottom facing button (e.g. Xbox A button)
+      //SDLProccessGameControllerButton(&(OldController->actionDown),
+      //                         &(NewController->actionDown),
+      //                         gamepad,
+      //                         SDL_GAMEPAD_BUTTON_SOUTH);
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_NORTH)) {
+        SDL_Log(" button north");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH)) {
+        SDL_Log(" button south");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_EAST)) {
+        SDL_Log(" button east");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_WEST)) {
+        SDL_Log(" button west");
+      }
+ 
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP)) {
+        SDL_Log("DPad UP");
+      }     
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN)) {
+        SDL_Log("DPad Down");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT)) {
+        SDL_Log("DPad LEFT");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT)) {
+        SDL_Log("DPad Right");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER)) {
+        SDL_Log("Left bumper 1");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER)) {
+        SDL_Log("RIGHT bumper 1");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_START)) {
+        SDL_Log("START");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_BACK)) {
+        SDL_Log("BACK");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_LEFT_STICK)) {
+        SDL_Log("Left Stick");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+        SDL_Log("Right Stick");
+      }
+
+      if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_BACK)) {
+        SDL_Log("BACK");
+      }
+      
+      if(SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER)) {
+        SDL_Log("Left Trigger");
+      }
+
+       if(SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)) {
+        SDL_Log("Right Trigger");
+      }
+       
+      Sint16 right_stick_x = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
+
+      Sint16 right_stick_y = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
+    
+      if(right_stick_x > 1000 || right_stick_y > 1000) {
+        SDL_Log("right_gamestick");
+      }
+
+      Sint16 left_stick_x = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
+
+      Sint16 left_stick_y = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
+    
+      if(left_stick_x > 1000 || left_stick_y > 1000) {
+        SDL_Log("left_gamestick");
+      }
     }
 
+    game_offscreen_buffer OffscreenBuffer;
+    OffscreenBuffer.memory = GlobalBackBuffer.memory;
+    OffscreenBuffer.width = GlobalBackBuffer.width;
+    OffscreenBuffer.height = GlobalBackBuffer.height;
+    OffscreenBuffer.pitch = GlobalBackBuffer.pitch;
+
+    game_sound_output_buffer SoundBuffer;
+
+    GameUpdateAndRender(&GameState, NewInput, &OffscreenBuffer, &SoundBuffer);
     SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
     SDL_RenderTexture(renderer, GlobalBackBuffer.texture, NULL, NULL);
     SDL_RenderPresent(renderer);
@@ -189,7 +307,7 @@ int main(int argc, char *argv[]){
         double budgetMs = 1000.0 / (double)GameUpdateHz;
         double slackMs = budgetMs - avgWorkMs;
 
-        SDL_Log("FPS: %5.1f | total: %6.3f ms | work:  %6.3f ms | slack: %6.3f ms | missed: %u", fps, avgTotalMs, avgWorkMs, slackMs,   missedFrames);
+        //SDL_Log("FPS: %5.1f | total: %6.3f ms | work:  %6.3f ms | slack: %6.3f ms | missed: %u", fps, avgTotalMs, avgWorkMs, slackMs,   missedFrames);
 
         fps_accum_seconds = 0.0;
         work_accum_seconds = 0.0;

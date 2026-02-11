@@ -18,6 +18,8 @@ Notice: Copyright (C) 2026 Zach Lecerf <zach@dyforge.com>
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof(Array)[0]))
 
-
+typedef struct game_state {
+  int position;
+} game_state;
 
 #endif

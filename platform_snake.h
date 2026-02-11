@@ -66,6 +66,9 @@ typedef struct  game_controller_input {
 typedef struct game_input {
   game_button_state mouseButtons[5];
   int32_t mouseX, mouseY, mouseZ;
+
+  real32 dtForFrame;
+  game_controller_input Controllers[5];
 } game_input;
 
 typedef  struct game_memory  {
