@@ -18,10 +18,12 @@ internal int InitEngine(){
   }
 
   return 0;
-
 }
 
-void RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
+
+
+void 
+RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
   SDL_HapticID *haptics = SDL_GetHaptics(NULL);
   if (haptics) {
     haptic = SDL_OpenHaptic(haptics[0]);
@@ -121,6 +123,7 @@ int main(int argc, char *argv[]){
     }
 
     if (gamepad) {
+
     }
 
     SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
