@@ -1,5 +1,5 @@
 // SDL3 Platform specific code.
-
+//TODO: Fix timing for 60 frames a second (just figure this out homie... )
 #include "snake.h"
 #include "SDL3_snake.h"
 #include "snake.c"
@@ -18,11 +18,11 @@ g_internal int InitEngine(){
 }
 
 void 
-RunHaptics(SDL_Haptic **haptic, float strength, int time_milli) {
+RunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
   SDL_HapticID *haptics = SDL_GetHaptics(NULL);
 
   if (haptics) {
-    *haptic = SDL_OpenHaptic(haptics[0]);
+    haptic = SDL_OpenHaptic(haptics[0]);
     SDL_free(haptics);
   }
 
@@ -31,10 +31,10 @@ RunHaptics(SDL_Haptic **haptic, float strength, int time_milli) {
     return;
   }
 
-  if (*haptic == NULL) return;
+  if (haptic == NULL) return;
 
-  SDL_InitHapticRumble(*haptic);
-  SDL_PlayHapticRumble(*haptic, strength, time_milli);
+  SDL_InitHapticRumble(haptic);
+  SDL_PlayHapticRumble(haptic, strength, time_milli);
 
 }
 
@@ -48,9 +48,10 @@ SDLGetWindowRefreshRate(SDL_Window *window) {
   const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(displayIndex);
 
   if (mode->refresh_rate == 0) {
+   
+    SDL_Log("using default refresh rate %0.2f", mode->refresh_rate);
     return defaultRefreshRate;
   }
-  SDL_Log("refresh rate %0.2f", mode->refresh_rate);
   return mode->refresh_rate;
 }
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[]){
   running = 1;
 
   //Play rumble at 50% for 2 seconds
-  RunHaptics(haptic, 0.25, 1000);
+  RunHaptics(haptic, 0.50, 2000);
 
   while (running) {
     uint64_t frameStart = SDL_GetPerformanceCounter();
@@ -150,6 +151,8 @@ int main(int argc, char *argv[]){
     uint64_t frameEnd = SDL_GetPerformanceCounter();
     uint64_t elapsed = SDLGetSecondsElapsed(frameStart, frameEnd);
 
+    TargetSecondsPerFrame = 1.0f / (real32)SDLGetWindowRefreshRate(window);
+
     if (elapsed < TargetSecondsPerFrame) {
       uint64_t remaining = TargetSecondsPerFrame - elapsed;
 
@@ -159,6 +162,7 @@ int main(int argc, char *argv[]){
 
       while ((SDL_GetPerformanceCounter() - frameStart) < TargetSecondsPerFrame) {
         // Waiting..
+        SDL_Log("Waiting");
       }
     }
   }
