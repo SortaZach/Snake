@@ -5,8 +5,8 @@
 
 // TO PASS TO FRONT 
 int
-ErrorWindow (char *error) {
-  SDL_Log(error); 
+ErrorWindow (const char *error) {
+  SDL_Log("%s", error); 
 }
 
 #include "snake.c"
@@ -47,12 +47,18 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
 }
 
 g_internal void
-SDLProccessKeyboardKeys(game_controller_input *Input0){
-  const bool *key_states = SDL_GetKeyboardState(0);
+SDLProccessButton(game_button_state *Old, game_button_state *New, bool32 IsDown) {
+  New->endedDown = IsDown;
+  New->halfTransitionCount = (Old->endedDown != New->endedDown) ? 1 : 0;
+}
 
-  
+g_internal void
+SDLProccessKeyboardKeys(game_controller_input *Old, game_controller_input *New){
+  const bool *key_states = SDL_GetKeyboardState(NULL);
+
+  *New = *Old;
   if(key_states[SDL_SCANCODE_W]) {
-    Input0->moveUp.endedDown = 1;
+    SDLProccessButton(&Old->moveUp, &New->moveUp, key_states[SDL_SCANCODE_W]);
     SDL_Log("W Pressed");
   }
   
@@ -231,7 +237,7 @@ int main(int argc, char *argv[]){
     if (keyboard) {
       game_controller_input *OldController = &OldInput->Controllers[0];
       game_controller_input *NewController = &NewInput->Controllers[0];
-      SDLProccessKeyboardKeys(OldController);
+      SDLProccessKeyboardKeys(OldController, NewController);
     }
 
     if (gamepad) {
@@ -329,6 +335,10 @@ int main(int argc, char *argv[]){
         SDL_Log("left_gamestick");
       }
     }
+
+    game_input *Temp = NewInput;
+    NewInput = OldInput;
+    OldInput = Temp;
 
     game_offscreen_buffer OffscreenBuffer;
     OffscreenBuffer.memory = GlobalBackBuffer.memory;

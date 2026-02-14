@@ -16,8 +16,8 @@ GameUpdateAndRender( game_state *GameState,
     // NOTE(Zach): use digital movement tuning
   }
 
-  if(Input0.actionUp.endedDown == 1){
-    ErrorWindow("Action Up");
+  if(Input0.moveUp.endedDown == 1){
+    ErrorWindow("move Up");
   }
 
   if(Input0.actionUp.endedDown){
