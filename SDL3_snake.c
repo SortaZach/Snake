@@ -40,6 +40,63 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
 }
 
 g_internal void
+SDLProccessKeyboardKeys(){
+  const bool *key_states = SDL_GetKeyboardState(0);
+  
+  if(key_states[SDL_SCANCODE_W]) {
+    SDL_Log("W Pressed");
+  }
+  
+  if(key_states[SDL_SCANCODE_A]) {
+    SDL_Log("A Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_S]) {
+    SDL_Log("S Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_D]) {
+    SDL_Log("D Pressed");
+  }
+  
+  if(key_states[SDL_SCANCODE_UP]) {
+    SDL_Log("Up Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_DOWN]) {
+    SDL_Log("Down Pressed");
+  }
+  
+  if(key_states[SDL_SCANCODE_LEFT]) {
+    SDL_Log("Left Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_RIGHT]) {
+    SDL_Log("Right Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_SPACE]) {
+    SDL_Log("Space Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_BACKSPACE]) {
+    SDL_Log("Backspace Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_RETURN]) {
+    SDL_Log("Return Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_DELETE]) {
+    SDL_Log("Delete Pressed");
+  }
+
+  if(key_states[SDL_SCANCODE_ESCAPE]) {
+    SDL_Log("Escape Pressed");
+  }
+}
+
+g_internal void
 SDLProccessGameControllerButton(
       game_button_state *OldState,
       game_button_state *NewState,
@@ -64,6 +121,7 @@ int main(int argc, char *argv[]){
   SDL_Renderer *renderer;
   SDL_AudioStream *audio_stream;
   SDL_Gamepad *gamepad;
+  SDL_KeyboardID *keyboard;
   SDL_Haptic *haptic;
   SDL_Event event;
 
@@ -82,6 +140,7 @@ int main(int argc, char *argv[]){
   window = SDL_CreateWindow("Snake", 1024, 768, SDL_WINDOW_RESIZABLE);
   renderer = SDL_CreateRenderer(window, NULL);
   gamepad = NULL; 
+  keyboard = SDL_GetKeyboards(NULL);
   game_state GameState;
 
   //init haptic
@@ -157,6 +216,10 @@ int main(int argc, char *argv[]){
             }
         }
       }
+    }
+    
+    if (keyboard) {
+      SDLProccessKeyboardKeys();
     }
 
     if (gamepad) {
