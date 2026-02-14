@@ -1,6 +1,14 @@
 // SDL3 Platform specific code.
 #include "snake.h"
 #include "SDL3_snake.h"
+
+
+// TO PASS TO FRONT 
+int
+ErrorWindow (char *error) {
+  SDL_Log(error); 
+}
+
 #include "snake.c"
 
 // NOTE(Zach): Can change this to 60 is we want more animation room..  Can do a custom lock for menu screens seperate (like 15Hz) while the game could run at 60. Things to think about.
@@ -18,7 +26,6 @@ g_internal int InitEngine(){
 
   return 0;
 }
-
 
 g_internal int
 SDLGetWindowRefreshRate(SDL_Window *window) {
@@ -40,10 +47,12 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
 }
 
 g_internal void
-SDLProccessKeyboardKeys(){
+SDLProccessKeyboardKeys(game_controller_input *Input0){
   const bool *key_states = SDL_GetKeyboardState(0);
+
   
   if(key_states[SDL_SCANCODE_W]) {
+    Input0->moveUp.endedDown = 1;
     SDL_Log("W Pressed");
   }
   
@@ -115,6 +124,7 @@ SDLRunHaptics(SDL_Haptic *haptic, float strength, int time_milli) {
   SDL_InitHapticRumble(haptic);
   SDL_PlayHapticRumble(haptic, strength, time_milli);
 }
+
 
 int main(int argc, char *argv[]){
   SDL_Window *window;
@@ -219,7 +229,9 @@ int main(int argc, char *argv[]){
     }
     
     if (keyboard) {
-      SDLProccessKeyboardKeys();
+      game_controller_input *OldController = &OldInput->Controllers[0];
+      game_controller_input *NewController = &NewInput->Controllers[0];
+      SDLProccessKeyboardKeys(OldController);
     }
 
     if (gamepad) {
