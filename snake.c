@@ -18,6 +18,7 @@ GameUpdateAndRender( game_state *GameState,
 
   if(Input0.moveUp.endedDown == 1){
     ErrorWindow("move Up");
+    Input0.moveUp.endedDown = 0;
   }
 
   if(Input0.actionUp.endedDown){

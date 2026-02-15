@@ -48,19 +48,19 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
 
 g_internal void
 SDLProccessButton(game_button_state *Old, game_button_state *New, bool32 IsDown) {
-  New->endedDown = IsDown;
-  New->halfTransitionCount = (Old->endedDown != New->endedDown) ? 1 : 0;
+
+  if(New->endedDown != IsDown) {
+    New->endedDown = IsDown;
+    ++New->halfTransitionCount;
+  }
 }
 
+bool32 IsDown = false;
 g_internal void
 SDLProccessKeyboardKeys(game_controller_input *Old, game_controller_input *New){
   const bool *key_states = SDL_GetKeyboardState(NULL);
 
-  *New = *Old;
-  if(key_states[SDL_SCANCODE_W]) {
-    SDLProccessButton(&Old->moveUp, &New->moveUp, key_states[SDL_SCANCODE_W]);
-    SDL_Log("W Pressed");
-  }
+  SDLProccessButton(&Old->moveUp, &New->moveUp, key_states[SDL_SCANCODE_W]);
   
   if(key_states[SDL_SCANCODE_A]) {
     SDL_Log("A Pressed");
@@ -117,7 +117,8 @@ SDLProccessGameControllerButton(
       game_button_state *NewState,
       SDL_Gamepad *ControllerHandle,
       SDL_GamepadButton Button
-    ) {
+    ) 
+{
       NewState->endedDown = SDL_GetGamepadButton(ControllerHandle, Button);
       NewState->halfTransitionCount = ((NewState->endedDown == OldState->endedDown) ? 0 : 1);
 }
@@ -237,6 +238,25 @@ int main(int argc, char *argv[]){
     if (keyboard) {
       game_controller_input *OldController = &OldInput->Controllers[0];
       game_controller_input *NewController = &NewInput->Controllers[0];
+
+      *NewController = *OldController;
+
+      NewController->moveUp.halfTransitionCount = 0;
+      NewController->moveDown.halfTransitionCount = 0;
+      NewController->moveLeft.halfTransitionCount = 0;
+      NewController->moveRight.halfTransitionCount = 0;
+
+      NewController->actionUp.halfTransitionCount = 0;
+      NewController->actionDown.halfTransitionCount = 0;
+      NewController->actionLeft.halfTransitionCount = 0;
+      NewController->actionRight.halfTransitionCount = 0;
+      
+      NewController->start.halfTransitionCount = 0;
+      NewController->back.halfTransitionCount = 0;
+
+      NewController->leftShoulder.halfTransitionCount = 0;
+      NewController->rightShoulder.halfTransitionCount = 0;
+
       SDLProccessKeyboardKeys(OldController, NewController);
     }
 
@@ -337,8 +357,8 @@ int main(int argc, char *argv[]){
     }
 
     game_input *Temp = NewInput;
-    NewInput = OldInput;
-    OldInput = Temp;
+    OldInput = NewInput;
+    NewInput = Temp;
 
     game_offscreen_buffer OffscreenBuffer;
     OffscreenBuffer.memory = GlobalBackBuffer.memory;
