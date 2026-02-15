@@ -48,7 +48,6 @@ SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
 
 g_internal void
 SDLProccessButton(game_button_state *Old, game_button_state *New, bool32 IsDown) {
-
   if(New->endedDown != IsDown) {
     New->endedDown = IsDown;
     ++New->halfTransitionCount;
@@ -59,56 +58,13 @@ bool32 IsDown = false;
 g_internal void
 SDLProccessKeyboardKeys(game_controller_input *Old, game_controller_input *New){
   const bool *key_states = SDL_GetKeyboardState(NULL);
-
-  SDLProccessButton(&Old->moveUp, &New->moveUp, key_states[SDL_SCANCODE_W]);
-  
-  if(key_states[SDL_SCANCODE_A]) {
-    SDL_Log("A Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_S]) {
-    SDL_Log("S Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_D]) {
-    SDL_Log("D Pressed");
-  }
-  
-  if(key_states[SDL_SCANCODE_UP]) {
-    SDL_Log("Up Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_DOWN]) {
-    SDL_Log("Down Pressed");
-  }
-  
-  if(key_states[SDL_SCANCODE_LEFT]) {
-    SDL_Log("Left Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_RIGHT]) {
-    SDL_Log("Right Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_SPACE]) {
-    SDL_Log("Space Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_BACKSPACE]) {
-    SDL_Log("Backspace Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_RETURN]) {
-    SDL_Log("Return Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_DELETE]) {
-    SDL_Log("Delete Pressed");
-  }
-
-  if(key_states[SDL_SCANCODE_ESCAPE]) {
-    SDL_Log("Escape Pressed");
-  }
+  SDLProccessButton(&Old->moveUp, &New->moveUp, key_states[SDL_SCANCODE_W] | key_states[SDL_SCANCODE_UP]);
+  SDLProccessButton(&Old->moveDown, &New->moveDown, key_states[SDL_SCANCODE_S] | key_states[SDL_SCANCODE_DOWN]);
+  SDLProccessButton(&Old->moveLeft, &New->moveLeft, key_states[SDL_SCANCODE_A] | key_states[SDL_SCANCODE_LEFT]);
+  SDLProccessButton(&Old->moveRight, &New->moveRight, key_states[SDL_SCANCODE_D] | key_states[SDL_SCANCODE_RIGHT]);
+  SDLProccessButton(&Old->start, &New->start, key_states[SDL_SCANCODE_RETURN] | key_states[SDL_SCANCODE_P]);
+  SDLProccessButton(&Old->back, &New->back, key_states[SDL_SCANCODE_DELETE] | key_states[SDL_SCANCODE_ESCAPE] | key_states[SDL_SCANCODE_BACKSPACE]);
+  SDLProccessButton(&Old->actionDown, &New->actionDown, key_states[SDL_SCANCODE_SPACE]);
 }
 
 g_internal void
