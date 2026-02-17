@@ -6,9 +6,8 @@ UpdateControlInput(game_controller_input Input) {
   if(Input.isAnalog) {
     // NOTE(Zach): use analog movement tuning
   } else {
-  }
-
   // NOTE(Zach): use digital movement tuning
+  }
 
 }
 

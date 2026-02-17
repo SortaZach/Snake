@@ -74,8 +74,8 @@ typedef struct game_input {
 typedef  struct game_memory  {
   bool32 isInitialized;
 
-  uint64_t PermanentStorageSize;
-  void *PermanentStorage; //NOTE(zach): REQUIRED to be zero at startup
+  uint64_t permanentStorageSize;
+  void *permanentStorage; //NOTE(zach): REQUIRED to be zero at startup
 
   uint64_t transientStorageSize;
   void *transientStorage; //NOTE(zach): REQUIRED to be zero at startup
