@@ -80,4 +80,5 @@ typedef  struct game_memory  {
   uint64_t transientStorageSize;
   void *transientStorage; //NOTE(zach): REQUIRED to be zero at startup
 } game_memory;
+
 #endif

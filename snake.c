@@ -80,10 +80,10 @@ DrawRectangle(game_offscreen_buffer *Buffer,
 
 g_internal void
 GameUpdateAndRender( game_state *GameState, 
-                  game_input *Input, 
-                  game_offscreen_buffer *Buffer,
-                  game_sound_output_buffer *SoundBuffer) {
-  
+                     game_input *Input, 
+                     game_offscreen_buffer *Buffer,
+                     game_sound_output_buffer *SoundBuffer) {
+      
   game_controller_input Input0 = Input->Controllers[0];
   if(Input0.moveUp.endedDown == 1 && Input0.moveUp.halfTransitionCount == 1){
     ErrorWindow("Move Up");
