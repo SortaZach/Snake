@@ -22,31 +22,59 @@ UpdateControlInput(game_controller_input Input) {
   }
 }
 
-void
-RenderPlayer(game_offscreen_buffer *Buffer, int PlayerX, int PlayerY) {
-  uint8_t *endOfBuffer = (uint8_t *)Buffer->memory + Buffer->pitch* Buffer ->height;
+g_internal void
+DrawRectangle(game_offscreen_buffer *Buffer,
+              real32 RealMinX, 
+              real32 RealMinY, 
+              real32 RealMaxX, 
+              real32 RealMaxY, 
 
-  uint32_t Color = 0xFFFFFFFF;
-  int top = PlayerY;
-  int bottom = PlayerY+10;
-  for( int x = PlayerX;
-      x < PlayerX+10;
-      ++x) {
+              real32 R, 
+              real32 G,
+              real32 B) {
+
+  int32_t MinX = RoundReal32ToInt32(RealMinX);
+  int32_t MinY = RoundReal32ToInt32(RealMinY);
+  int32_t MaxX = RoundReal32ToInt32(RealMaxX);
+  int32_t MaxY = RoundReal32ToInt32(RealMaxY);
+
+  if (MinX < 0) {
+    MinX = 0;
+  }
+
+  if (MinY < 0) {
+    MinY = 0;
+  }
+
+  if (MaxX > Buffer->width) {
+    MaxX = Buffer->width;
+  }
+
+  if(MaxY > Buffer->height) {
+    MaxY = Buffer->height;
+  }
+
+  uint32_t color = ((RoundReal32ToUInt32(R * 225.0) << 16) |
+                    (RoundReal32ToUInt32(G * 255.0) << 8)  |
+                    (RoundReal32ToUInt32(B * 255.0) << 0));
+
+  uint8_t *row = ((uint8_t *)Buffer->memory +
+                  MinX*Buffer->bytesPerPixel +
+                  MinY*Buffer->pitch);
+
+  for (int y = MinY;
+      y < MaxY;
+      ++y) {
+    uint32_t *pixel = (uint32_t *)row;
     
-    uint8_t *Pixel = ((uint8_t *)Buffer->memory +
-                      x*Buffer->bytesPerPixel +
-                      top*Buffer->pitch);
+    for (int x = MinX;
+        x < MaxX;
+        ++x) {
 
-    for(int y = top;
-        y < bottom;
-        ++y) {
-      
-      if((Pixel >= (uint8_t*)Buffer->memory) && ((Pixel + 4) <= endOfBuffer)) {
-        *(uint32_t *)Pixel = Color;
-      }
-
-      Pixel += Buffer->pitch;
+      *pixel++ = color;
     }
+
+    row += Buffer->pitch;
   }
 }
 
@@ -118,5 +146,4 @@ GameUpdateAndRender( game_state *GameState,
     Input0.back.endedDown = 0;
   }
 
-  RenderPlayer(Buffer, GameState->playerX, GameState->playerY);
 }
