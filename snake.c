@@ -1,14 +1,53 @@
 // Actual Game logic goes here.
 #include "snake.h"
 
-void
+g_internal int32_t
+RoundReal32ToInt32(real32 Real32){
+  int32_t Result = (int32_t)(Real32 + 0.5f);
+  return(Result);
+}
+
+g_internal uint32_t
+RoundReal32ToUInt32(real32 Real32) {
+  int32_t Result = (int32_t)(Real32 + 0.5f);
+  return (Result);
+}
+
+g_internal void
 UpdateControlInput(game_controller_input Input) {
   if(Input.isAnalog) {
     // NOTE(Zach): use analog movement tuning
   } else {
   // NOTE(Zach): use digital movement tuning
   }
+}
 
+void
+RenderPlayer(game_offscreen_buffer *Buffer, int PlayerX, int PlayerY) {
+  uint8_t *endOfBuffer = (uint8_t *)Buffer->memory + Buffer->pitch* Buffer ->height;
+
+  uint32_t Color = 0xFFFFFFFF;
+  int top = PlayerY;
+  int bottom = PlayerY+10;
+  for( int x = PlayerX;
+      x < PlayerX+10;
+      ++x) {
+    
+    uint8_t *Pixel = ((uint8_t *)Buffer->memory +
+                      x*Buffer->bytesPerPixel +
+                      top*Buffer->pitch);
+
+    for(int y = top;
+        y < bottom;
+        ++y) {
+      
+      if((Pixel >= (uint8_t*)Buffer->memory) && ((Pixel + 4) <= endOfBuffer)) {
+        *(uint32_t *)Pixel = Color;
+      }
+
+      Pixel += Buffer->pitch;
+    }
+  }
 }
 
 g_internal void
@@ -31,6 +70,7 @@ GameUpdateAndRender( game_state *GameState,
   if(Input0.moveLeft.endedDown == 1 && Input0.moveLeft.halfTransitionCount == 1){
     ErrorWindow("Move Left");
     Input0.moveUp.endedDown = 0;
+    GameState->playerX += (int)(4.0f*1);
   }
   
   if(Input0.moveRight.endedDown == 1 && Input0.moveRight.halfTransitionCount == 1){
@@ -77,4 +117,6 @@ GameUpdateAndRender( game_state *GameState,
     ErrorWindow("Back");
     Input0.back.endedDown = 0;
   }
+
+  RenderPlayer(Buffer, GameState->playerX, GameState->playerY);
 }
