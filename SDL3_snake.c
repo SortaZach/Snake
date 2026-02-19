@@ -4,7 +4,7 @@
 
 
 // TO PASS TO FRONT 
-int
+void
 ErrorWindow (const char *error) {
   SDL_Log("%s", error); 
 }
@@ -44,6 +44,32 @@ SDLGetWindowRefreshRate(SDL_Window *window) {
 g_internal real32
 SDLGetSecondsElapsed(uint64_t OldCounter, uint64_t CurrentCounter) {
   return ((real32) (CurrentCounter - OldCounter) / (real32)PerfFreq);
+}
+
+g_internal void
+SDLResizeBackBuffer(SDL_Renderer *Renderer, sdl3_offscreen_buffer *Buffer, int Width, int Height) {
+
+  if (Buffer->texture) { 
+    SDL_DestroyTexture(Buffer->texture);
+    Buffer->texture = NULL;
+  }
+
+  if (Buffer->memory) { 
+    SDL_free(Buffer->memory); 
+    Buffer->memory = NULL;
+  }
+
+  Buffer->width = Width;
+  Buffer->height = Height;
+  Buffer->pitch = Width * 4;
+  Buffer->memory = SDL_calloc(1, (size_t)Buffer->pitch * (size_t)Height);
+
+  Buffer->texture = SDL_CreateTexture(Renderer,
+                                    SDL_PIXELFORMAT_ARGB8888,
+                                    SDL_TEXTUREACCESS_STREAMING,
+                                    Width, Height);
+
+  SDL_SetTextureScaleMode(Buffer->texture, SDL_SCALEMODE_NEAREST);
 }
 
 g_internal void
@@ -112,6 +138,10 @@ int main(int argc, char *argv[]){
   //---INITIALIZE  VALUES  ------
   window = SDL_CreateWindow("Snake", 1024, 768, SDL_WINDOW_RESIZABLE);
   renderer = SDL_CreateRenderer(window, NULL);
+
+  //TODO(Zach): Change hardcoded Back buffer size to be screen size maybe?
+  SDLResizeBackBuffer(renderer, &GlobalBackBuffer, 960, 540);
+
   gamepad = NULL; 
   keyboard = SDL_GetKeyboards(NULL);
   game_state GameState;
@@ -336,11 +366,14 @@ int main(int argc, char *argv[]){
       OffscreenBuffer.width = GlobalBackBuffer.width;
       OffscreenBuffer.height = GlobalBackBuffer.height;
       OffscreenBuffer.pitch = GlobalBackBuffer.pitch;
+      //ARGB8888 = 4 bytes per pixel
+      OffscreenBuffer.bytesPerPixel = 4;
 
       game_sound_output_buffer SoundBuffer;
 
       GameUpdateAndRender(&GameState, NewInput, &OffscreenBuffer, &SoundBuffer);
       SDL_UpdateTexture(GlobalBackBuffer.texture, NULL, GlobalBackBuffer.memory, GlobalBackBuffer.pitch);
+      SDL_RenderClear(renderer);
       SDL_RenderTexture(renderer, GlobalBackBuffer.texture, NULL, NULL);
       SDL_RenderPresent(renderer);
 

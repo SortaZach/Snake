@@ -54,7 +54,9 @@ DrawRectangle(game_offscreen_buffer *Buffer,
     MaxY = Buffer->height;
   }
 
-  uint32_t color = ((RoundReal32ToUInt32(R * 225.0) << 16) |
+  // AA RR GG BB = 32 16 8 0
+  uint32_t color = ((0xFFu << 24) | // alpha
+                    (RoundReal32ToUInt32(R * 255.0) << 16) |
                     (RoundReal32ToUInt32(G * 255.0) << 8)  |
                     (RoundReal32ToUInt32(B * 255.0) << 0));
 
@@ -84,6 +86,10 @@ GameUpdateAndRender( game_state *GameState,
                      game_offscreen_buffer *Buffer,
                      game_sound_output_buffer *SoundBuffer) {
       
+  DrawRectangle(Buffer, 0.0f, 0.0f, (real32)Buffer->width, (real32)Buffer->height, 
+      1.0f, 0.0, 0.1f);
+
+
   game_controller_input Input0 = Input->Controllers[0];
   if(Input0.moveUp.endedDown == 1 && Input0.moveUp.halfTransitionCount == 1){
     ErrorWindow("Move Up");
