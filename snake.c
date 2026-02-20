@@ -1,155 +1,65 @@
-// Actual Game logic goes here.
-#include "snake.h"
-
-g_internal int32_t
-RoundReal32ToInt32(real32 Real32){
-  int32_t Result = (int32_t)(Real32 + 0.5f);
-  return(Result);
+// Main Game Logic
+int
+intSignedToAbs(int value) {
+  if (value < 0) {
+    return value * -1;
+  }
+  return value;
 }
 
-g_internal uint32_t
-RoundReal32ToUInt32(real32 Real32) {
-  int32_t Result = (int32_t)(Real32 + 0.5f);
-  return (Result);
-}
-
-g_internal void
-UpdateControlInput(game_controller_input Input) {
-  if(Input.isAnalog) {
-    // NOTE(Zach): use analog movement tuning
-  } else {
-  // NOTE(Zach): use digital movement tuning
-  }
-}
-
-g_internal void
-DrawRectangle(game_offscreen_buffer *Buffer,
-              real32 RealMinX, 
-              real32 RealMinY, 
-              real32 RealMaxX, 
-              real32 RealMaxY, 
-
-              real32 R, 
-              real32 G,
-              real32 B) {
-
-  int32_t MinX = RoundReal32ToInt32(RealMinX);
-  int32_t MinY = RoundReal32ToInt32(RealMinY);
-  int32_t MaxX = RoundReal32ToInt32(RealMaxX);
-  int32_t MaxY = RoundReal32ToInt32(RealMaxY);
-
-  if (MinX < 0) {
-    MinX = 0;
-  }
-
-  if (MinY < 0) {
-    MinY = 0;
-  }
-
-  if (MaxX > Buffer->width) {
-    MaxX = Buffer->width;
-  }
-
-  if(MaxY > Buffer->height) {
-    MaxY = Buffer->height;
-  }
-
-  // AA RR GG BB = 32 16 8 0
-  uint32_t color = ((0xFFu << 24) | // alpha
-                    (RoundReal32ToUInt32(R * 255.0) << 16) |
-                    (RoundReal32ToUInt32(G * 255.0) << 8)  |
-                    (RoundReal32ToUInt32(B * 255.0) << 0));
-
-  uint8_t *row = ((uint8_t *)Buffer->memory +
-                  MinX*Buffer->bytesPerPixel +
-                  MinY*Buffer->pitch);
-
-  for (int y = MinY;
-      y < MaxY;
-      ++y) {
-    uint32_t *pixel = (uint32_t *)row;
+void
+getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap) {
+ float horizontal_move;
+ float vertical_move;
+  if (intSignedToAbs(axis_x) > 1000 || intSignedToAbs(axis_y) > 1000) {
+    horizontal_move = axis_x / 32768.0;
+    vertical_move = axis_y / 32768.0;
     
-    for (int x = MinX;
-        x < MaxX;
-        ++x) {
+    if(intSignedToAbs(axis_x) >= intSignedToAbs(axis_y)) {
+      if (horizontal_move > 0){
+        TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_RIGHT_TILE;
 
-      *pixel++ = color;
-    }
-
-    row += Buffer->pitch;
-  }
-}
-
-g_internal void
-GameUpdateAndRender( game_state *GameState, 
-                     game_input *Input, 
-                     game_offscreen_buffer *Buffer,
-                     game_sound_output_buffer *SoundBuffer) {
+        if (Player->head_x_pos < (TILE_X_LENGTH - 1)) {
+          ++Player->head_x_pos;
+        } else {
+          Player->head_x_pos = 0;
+        }
+      } 
       
-  DrawRectangle(Buffer, 0.0f, 0.0f, (real32)Buffer->width, (real32)Buffer->height, 
-      1.0f, 0.0, 0.1f);
+      if (horizontal_move < 0) {
+        TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_LEFT_TILE;
 
+        if (Player->head_x_pos > 0) {
+          --Player->head_x_pos;
+        } else {
+          Player->head_x_pos = (TILE_X_LENGTH - 1);
+        }
+      }
+    } else {
+      if (vertical_move > 0){
+        TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_DOWN_TILE;
+        if (Player->head_y_pos < (TILE_Y_LENGTH - 1)) {
+          ++Player->head_y_pos;
+        } else {
+          Player->head_y_pos = 0;
+        }
+      }
 
-  game_controller_input Input0 = Input->Controllers[0];
-  if(Input0.moveUp.endedDown == 1 && Input0.moveUp.halfTransitionCount == 1){
-    ErrorWindow("Move Up");
-    Input0.moveUp.endedDown = 0;
-  }
-
-  if(Input0.moveDown.endedDown == 1 && Input0.moveDown.halfTransitionCount == 1){
-    ErrorWindow("Move Down");
-    Input0.moveUp.endedDown = 0;
-  }
-
-  if(Input0.moveLeft.endedDown == 1 && Input0.moveLeft.halfTransitionCount == 1){
-    ErrorWindow("Move Left");
-    Input0.moveUp.endedDown = 0;
-    GameState->playerX += (int)(4.0f*1);
-  }
-  
-  if(Input0.moveRight.endedDown == 1 && Input0.moveRight.halfTransitionCount == 1){
-    ErrorWindow("Move Right");
-    Input0.moveRight.endedDown = 0;
-  }
-
-  if(Input0.actionLeft.endedDown == 1 && Input0.actionLeft.halfTransitionCount == 1){
-    ErrorWindow("Action Top");
-    Input0.actionLeft.endedDown = 0;
-  }
-  
-  if(Input0.actionDown.endedDown == 1 && Input0.actionDown.halfTransitionCount == 1){
-    ErrorWindow("Action Down");
-    Input0.actionDown.endedDown = 0;
-  }
-
-  if(Input0.actionLeft.endedDown == 1 && Input0.actionLeft.halfTransitionCount == 1){
-    ErrorWindow("Action Left");
-    Input0.actionLeft.endedDown = 0;
-  }
-  
-  if(Input0.actionRight.endedDown == 1 && Input0.actionRight.halfTransitionCount == 1){
-    ErrorWindow("Action Right");
-    Input0.actionRight.endedDown = 0;
-  }
-
-  if(Input0.leftShoulder.endedDown == 1 && Input0.leftShoulder.halfTransitionCount == 1){
-    ErrorWindow("Left Shoulder");
-    Input0.leftShoulder.endedDown = 0;
-  }
-
-  if(Input0.rightShoulder.endedDown == 1 && Input0.rightShoulder.halfTransitionCount == 1){
-    ErrorWindow("Right Shoulder");
-    Input0.rightShoulder.endedDown = 0;
-  }
-
-  if(Input0.start.endedDown == 1 && Input0.start.halfTransitionCount == 1){
-    ErrorWindow("Start");
-    Input0.start.endedDown = 0;
-  }
-
-  if(Input0.back.endedDown == 1 && Input0.back.halfTransitionCount == 1){
-    ErrorWindow("Back");
-    Input0.back.endedDown = 0;
-  }
-
+      if (vertical_move < 0){
+        TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_UP_TILE;
+        if (Player->head_y_pos > 0) {
+          --Player->head_y_pos;
+        } else {
+          Player->head_y_pos = (TILE_Y_LENGTH - 1);
+        }
+      }
+    }
+    if(Player->keep_tail <= 0){
+      ProcessTail(TileMap, Player);
+      Player->keep_tail = 0;
+    } else {
+      Player->keep_tail -= 1;
+    }
+  }  
 }
+
