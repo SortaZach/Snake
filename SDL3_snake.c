@@ -2,6 +2,7 @@
 #include "SDL3_snake.h"
 
 #define s_internal static 
+
 s_internal int FOOD_TILE = 1;
 s_internal int POWER_TILE = 2;
 s_internal int SNAKE_HEAD_TILE = 3;
@@ -11,7 +12,10 @@ s_internal int SNAKE_BODY_DOWN_TILE = 6;
 s_internal int SNAKE_BODY_LEFT_TILE = 7;
 
 
+//NOTE (zach): Target Frame Rate
+#define GameUpdateHz 30;
 typedef uint32_t tileMap[9][16];
+
 
 void ProcessTail(tileMap TileMap, player *Player){
   if(TileMap[Player->tail_x_pos][Player->tail_y_pos] == SNAKE_BODY_UP_TILE) {
@@ -92,11 +96,25 @@ main(int argc, char *argv[]){
   // So scaling by Integer makes sense.
   SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
+
+  //--- INITALIZE PERFORMANCE WATCHING ---
+  double fps_accum_seconds = 0.0;
+  double work_accum_seconds = 0.0;
+  uint32_t fps_frames = 0;
+  uint32_t missed_frames = 0;
+  uint64_t PerfFreq = SDL_GetPerformanceFrequency();
+  uint64_t TargetCountsPerFrame = PerfFreq / GameUpdateHz;
+
+
   // bitmapSurface = SDL_LoadBMP("img/hello.bmp");
   // bitmapTex = SDL_CreateTextureFromSurface();
   // SDL_DestroySurface(bitmapSurface);
-  int running = 1;
+  int8_t running = 1;
   while (running) {
+
+    // Figure out when our frame begins
+    uint64_t frame_start = SDL_GetPerformanceCounter();
+
     while (SDL_PollEvent(&event)) {
       switch (event.type){
         case SDL_EVENT_KEY_DOWN:
@@ -230,9 +248,74 @@ main(int argc, char *argv[]){
       }
     }
     SDL_RenderPresent(renderer);
+
+    uint64_t work_end = SDL_GetPerformanceCounter();
+    uint64_t work_counts = work_end - frame_start;
+    double work_seconds = (double)work_counts / (double)PerfFreq;
+
+    if (work_counts < TargetCountsPerFrame) {
+      uint64_t remaining = TargetCountsPerFrame - work_counts;
+      uint64_t remainingNS = (remaining * 1000000000ULL) / PerfFreq;
+
+      if (remaining > 1000000ULL) {
+        SDL_DelayPrecise(remaining - 1000000ULL);
+      }
+
+      while (( SDL_GetPerformanceCounter() - frame_start) < TargetCountsPerFrame ) {
+        // TODO(zach): This should probably sleep or something
+        // instead seeing as we're just using proccessing power for no reason... I think? 
+
+        // Waiting for frame to finish..
+      }
+
+
+
+
+      /* ---- FOR CHECKING FPS | WORK | SLACK | MISSED ----  */
+      uint64_t frame_end = SDL_GetPerformanceCounter();
+      double frame_seconds = (double)(frame_end - frame_start) / (double)PerfFreq;
+      int missed_frames = 0;
+
+      fps_accum_seconds += frame_seconds;
+      work_accum_seconds += work_seconds;
+      fps_frames++;
+
+      if (work_counts > TargetCountsPerFrame) {
+        missed_frames++;
+      }
+
+      if (fps_accum_seconds >= 1.0) {
+        double fps = (double)fps_frames / fps_accum_seconds;
+        double avg_total_ms = 1000.0 * (fps_accum_seconds / (double)fps_frames);
+        double avg_work_ms = 1000.0 * (work_accum_seconds / (double)fps_frames);
+        double budget_ms = 1000.0 / (double)GameUpdateHz;
+        double slack_ms = budget_ms - avg_work_ms;
+
+        SDL_Log("FPS: %5.1f | total: %6.3f ms | work:  %6.3f ms | slack: %6.3f ms | missed: %u", fps, avg_total_ms, avg_work_ms, slack_ms,   missed_frames);
+
+        fps_accum_seconds = 0.0;
+        work_accum_seconds = 0.0;
+        fps_frames = 0;
+        missed_frames = 0;
+      }
+    }
+
     SDL_Delay(150);
   }
   
   SDL_Quit();
   return 0;
 }
+
+// TODO(Zach): Different Screens need different things loaded
+            /* 
+             * First we need a menu:
+             *                    - Extreme Mode 
+             *                    - Classic Mode 
+             *                    - Settings 
+             *                    - Quit  
+             *
+             * Can use SDL_RenderTexture + 
+             * BackBuffer For background and gameplay
+             *
+             * */
