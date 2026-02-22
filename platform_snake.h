@@ -25,6 +25,7 @@ typedef struct player {
   int tail_x_pos;
   int tail_y_pos;
   int keep_tail;
+  int direction;
 } player;
 
 typedef struct food {
@@ -33,6 +34,11 @@ typedef struct food {
   int food_y;
 } food;
 
+// Directions:
+// 0 = Up
+// 1 = Down
+// 2 = Left
+// 3 = Right
 typedef struct game_state {
   int food_amount;
 } game_state;

@@ -11,9 +11,16 @@ s_internal int SNAKE_BODY_RIGHT_TILE = 5;
 s_internal int SNAKE_BODY_DOWN_TILE = 6;
 s_internal int SNAKE_BODY_LEFT_TILE = 7;
 
+s_internal int DIRECTION_UP    = 0;
+s_internal int DIRECTION_DOWN  = 1;
+s_internal int DIRECTION_LEFT  = 2;
+s_internal int DIRECTION_RIGHT = 3;
+
+s_internal uint32_t SNAKE_BASE_MOVEMENT = 150;
+
 
 //NOTE (zach): Target Frame Rate
-#define GameUpdateHz 30;
+#define GameUpdateHz 30
 typedef uint32_t tileMap[9][16];
 
 
@@ -101,10 +108,17 @@ main(int argc, char *argv[]){
   double fps_accum_seconds = 0.0;
   double work_accum_seconds = 0.0;
   uint32_t fps_frames = 0;
-  uint32_t missed_frames = 0;
   uint64_t PerfFreq = SDL_GetPerformanceFrequency();
   uint64_t TargetCountsPerFrame = PerfFreq / GameUpdateHz;
 
+
+  // --- SNAKE MOVEMENT ---
+
+  // snake speed
+  uint64_t last_counter = SDL_GetPerformanceCounter();
+  double snake_step_seconds = 0.25;
+  double snake_timer = 0.0;
+  Sint16 axis_x, axis_y;
 
   // bitmapSurface = SDL_LoadBMP("img/hello.bmp");
   // bitmapTex = SDL_CreateTextureFromSurface();
@@ -114,7 +128,6 @@ main(int argc, char *argv[]){
 
     // Figure out when our frame begins
     uint64_t frame_start = SDL_GetPerformanceCounter();
-
     while (SDL_PollEvent(&event)) {
       switch (event.type){
         case SDL_EVENT_KEY_DOWN:
@@ -173,31 +186,38 @@ main(int argc, char *argv[]){
         SDL_Log("button WEST");
       }
 
-      Sint16 axis_x, axis_y;
       axis_x = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
       axis_y = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
 
 
       float horizontal_move;
       float vertical_move;
-      getPlayerDirection(&Player, axis_x, axis_y, TileMap);
     }
 
     // NOTE(Zach): Clear to a black background
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
+    //NOTE (Zach): All body tiles are a int larger then 3 (the SNAKE_HEAD_TILE);
+    if (TileMap[Player.head_x_pos][Player.head_y_pos] > SNAKE_HEAD_TILE) {
+      running = 0;
+    }
 
     SDL_FRect rect;
-
     // NOTE(Zach): Tile height and width should always be the same so that it's a square tile.
     TILE_WIDTH = WINDOW_WIDTH / TILE_X_LENGTH;
     TILE_HEIGHT = TILE_WIDTH;
 
-
     if(GameState.food_amount < 1) {
-      Food.food_x = SDL_rand(TILE_X_LENGTH);
-      Food.food_y = SDL_rand(TILE_Y_LENGTH);
+      uint8_t tile_occupied = 1;
+      while(tile_occupied){
+        Food.food_x = SDL_rand(TILE_X_LENGTH);
+        Food.food_y = SDL_rand(TILE_Y_LENGTH);
+
+        if( TileMap[Food.food_x][Food.food_y] < SNAKE_HEAD_TILE ){
+          tile_occupied = false;
+        } 
+      }
 
       GameState.food_amount = 1;
     }
@@ -210,7 +230,7 @@ main(int argc, char *argv[]){
       GameState.food_amount = 0;
       Player.keep_tail = 2;
     }
-    
+
     for(int i = 0; i < TILE_X_LENGTH; i++) {
       for (int j = 0; j < TILE_Y_LENGTH; j++) {
         rect.x = i * TILE_WIDTH;
@@ -268,13 +288,26 @@ main(int argc, char *argv[]){
         // Waiting for frame to finish..
       }
 
+      // --- INTERNAL CLOCK FOR LOOP ---
+      uint64_t now_counter = SDL_GetPerformanceCounter();
+      double delta_seconds = (double)(now_counter - last_counter) / (double)PerfFreq;
+      last_counter = SDL_GetPerformanceCounter();
 
+      // Clamp
+      if (delta_seconds > 0.25) delta_seconds = 0.25;
 
+      // Increase timer
+      snake_timer += delta_seconds;
+
+      while (snake_timer >= snake_step_seconds) {
+        getPlayerDirection(&Player, axis_x, axis_y, TileMap);
+        snake_timer -= snake_step_seconds;    
+      }
 
       /* ---- FOR CHECKING FPS | WORK | SLACK | MISSED ----  */
       uint64_t frame_end = SDL_GetPerformanceCounter();
       double frame_seconds = (double)(frame_end - frame_start) / (double)PerfFreq;
-      int missed_frames = 0;
+      int32_t missed_frames = 0;
 
       fps_accum_seconds += frame_seconds;
       work_accum_seconds += work_seconds;
@@ -300,7 +333,6 @@ main(int argc, char *argv[]){
       }
     }
 
-    SDL_Delay(150);
   }
   
   SDL_Quit();

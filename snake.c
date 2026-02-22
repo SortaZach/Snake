@@ -7,6 +7,8 @@ intSignedToAbs(int value) {
   return value;
 }
 
+
+
 void
 getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap) {
  float horizontal_move;
@@ -14,11 +16,11 @@ getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap
   if (intSignedToAbs(axis_x) > 1000 || intSignedToAbs(axis_y) > 1000) {
     horizontal_move = axis_x / 32768.0;
     vertical_move = axis_y / 32768.0;
-    
+
     if(intSignedToAbs(axis_x) >= intSignedToAbs(axis_y)) {
       if (horizontal_move > 0){
+        Player->direction = DIRECTION_RIGHT;
         TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_RIGHT_TILE;
-
         if (Player->head_x_pos < (TILE_X_LENGTH - 1)) {
           ++Player->head_x_pos;
         } else {
@@ -27,6 +29,7 @@ getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap
       } 
       
       if (horizontal_move < 0) {
+        Player->direction = DIRECTION_LEFT;
         TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_LEFT_TILE;
 
         if (Player->head_x_pos > 0) {
@@ -37,6 +40,7 @@ getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap
       }
     } else {
       if (vertical_move > 0){
+        Player->direction = DIRECTION_DOWN;
         TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_DOWN_TILE;
         if (Player->head_y_pos < (TILE_Y_LENGTH - 1)) {
           ++Player->head_y_pos;
@@ -46,6 +50,7 @@ getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap
       }
 
       if (vertical_move < 0){
+        Player->direction = DIRECTION_UP;
         TileMap[Player->head_x_pos][Player->head_y_pos] = SNAKE_BODY_UP_TILE;
         if (Player->head_y_pos > 0) {
           --Player->head_y_pos;
