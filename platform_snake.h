@@ -26,6 +26,7 @@ typedef struct player {
   int tail_y_pos;
   int keep_tail;
   int direction;
+  int length;
 } player;
 
 typedef struct food {

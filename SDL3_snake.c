@@ -24,28 +24,6 @@ s_internal uint32_t SNAKE_BASE_MOVEMENT = 150;
 typedef uint32_t tileMap[9][16];
 
 
-void ProcessTail(tileMap TileMap, player *Player){
-  if(TileMap[Player->tail_x_pos][Player->tail_y_pos] == SNAKE_BODY_UP_TILE) {
-    TileMap[Player->tail_x_pos][Player->tail_y_pos] = 0;
-    Player->tail_y_pos -= 1;
-  } 
-
-  if(TileMap[Player->tail_x_pos][Player->tail_y_pos] == SNAKE_BODY_DOWN_TILE) {
-    TileMap[Player->tail_x_pos][Player->tail_y_pos] = 0;
-    Player->tail_y_pos += 1;
-  }
-
-  if(TileMap[Player->tail_x_pos][Player->tail_y_pos] == SNAKE_BODY_RIGHT_TILE) {
-    TileMap[Player->tail_x_pos][Player->tail_y_pos] = 0;
-    Player->tail_x_pos += 1;
-  }
-
-  if(TileMap[Player->tail_x_pos][Player->tail_y_pos] == SNAKE_BODY_LEFT_TILE) {
-    TileMap[Player->tail_x_pos][Player->tail_y_pos] = 0;
-    Player->tail_x_pos -= 1;
-  }
-}
-
 #include "snake.c"
 
 int 
@@ -88,6 +66,9 @@ main(int argc, char *argv[]){
   Player.head_y_pos = 3;
   Player.tail_x_pos = 3;
   Player.tail_y_pos = 3;
+  Player.length = 0;
+  Player.keep_tail = 0;
+  Player.direction = DIRECTION_RIGHT;
   tileMap TileMap;
 
   for (int i = 0; i < TILE_X_LENGTH; i++) { 
@@ -118,7 +99,7 @@ main(int argc, char *argv[]){
   uint64_t last_counter = SDL_GetPerformanceCounter();
   double snake_step_seconds = 0.20;
   double snake_timer = 0.0;
-  Sint16 axis_x, axis_y;
+  Sint16 axis_x = 0, axis_y = 0;
 
   // bitmapSurface = SDL_LoadBMP("img/hello.bmp");
   // bitmapTex = SDL_CreateTextureFromSurface();
@@ -207,7 +188,6 @@ main(int argc, char *argv[]){
     // NOTE(Zach): Tile height and width should always be the same so that it's a square tile.
     TILE_WIDTH = WINDOW_WIDTH / TILE_X_LENGTH;
     TILE_HEIGHT = TILE_WIDTH;
-    Player.keep_tail = 0;
 
     if(GameState.food_amount < 1) {
       uint8_t tile_occupied = 1;
@@ -293,15 +273,12 @@ main(int argc, char *argv[]){
       uint64_t now_counter = SDL_GetPerformanceCounter();
       double delta_seconds = (double)(now_counter - last_counter) / (double)PerfFreq;
       last_counter = SDL_GetPerformanceCounter();
-
       // Clamp
       if (delta_seconds > 0.25) delta_seconds = 0.25;
-
       // Increase timer
       snake_timer += delta_seconds;
-
       while (snake_timer >= snake_step_seconds) {
-        getPlayerDirection(&Player, axis_x, axis_y, TileMap);
+        movePlayer(&Player, axis_x, axis_y, TileMap);
         snake_timer -= snake_step_seconds;    
       }
 
