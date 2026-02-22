@@ -59,12 +59,8 @@ getPlayerDirection(player *Player, Sint16 axis_x, Sint16 axis_y, tileMap TileMap
         }
       }
     }
-    if(Player->keep_tail <= 0){
-      ProcessTail(TileMap, Player);
-      Player->keep_tail = 0;
-    } else {
-      Player->keep_tail -= 1;
-    }
+    ProcessTail(TileMap, Player);
+    Player->keep_tail = 0;
   }  
 }
 

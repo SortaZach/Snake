@@ -116,7 +116,7 @@ main(int argc, char *argv[]){
 
   // snake speed
   uint64_t last_counter = SDL_GetPerformanceCounter();
-  double snake_step_seconds = 0.25;
+  double snake_step_seconds = 0.20;
   double snake_timer = 0.0;
   Sint16 axis_x, axis_y;
 
@@ -207,6 +207,7 @@ main(int argc, char *argv[]){
     // NOTE(Zach): Tile height and width should always be the same so that it's a square tile.
     TILE_WIDTH = WINDOW_WIDTH / TILE_X_LENGTH;
     TILE_HEIGHT = TILE_WIDTH;
+    Player.keep_tail = 0;
 
     if(GameState.food_amount < 1) {
       uint8_t tile_occupied = 1;
@@ -228,7 +229,7 @@ main(int argc, char *argv[]){
     if (Player.head_x_pos == Food.food_x && Player.head_y_pos == Food.food_y) {
       TileMap[Food.food_x][Food.food_y] = SNAKE_HEAD_TILE;
       GameState.food_amount = 0;
-      Player.keep_tail = 2;
+      Player.keep_tail = 1;
     }
 
     for(int i = 0; i < TILE_X_LENGTH; i++) {
